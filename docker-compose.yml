@@ -1,0 +1,67 @@
+services:
+    myapp-web:
+        container_name: myapp-web
+        build:
+            context: .
+            dockerfile: myapp.Web.Dockerfile    
+        ports:
+            - 9090:80
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Staging
+        networks:
+            - network
+    myapp-api:
+        container_name: myapp-api
+        build:
+            context: .
+            dockerfile: myapp.Api.Dockerfile
+        ports:
+            - 9091:80
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Staging
+        networks:
+            - network
+    myapp-generator:
+        container_name: myapp-generator
+        build:
+            context: .
+            dockerfile: myapp.Generator.Dockerfile
+        ports:
+            - 9092:80
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Staging
+        networks:
+            - network
+    rabbitmq:
+        image: rabbitmq:3-management-alpine
+        container_name: rabbitmq
+        volumes:
+            - ./.docker/rabbitmq/etc/:/etc/rabbitmq/
+            - ./.docker/rabbitmq/data/:/var/lib/rabbitmq/
+            - ./.docker/rabbitmq/logs/:/var/log/rabbitmq/
+        environment:
+            RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
+            RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+        ports:
+            - 5672:5672
+            - 15672:15672
+        networks:
+            - network
+    mongodb:
+        image : mongo:5.0
+        container_name: mongodb
+        environment:
+            MONGO_INITDB_DATABASE: server-db
+            MONGO_INITDB_ROOT_USERNAME: admin
+            MONGO_INITDB_ROOT_PASSWORD: admin
+        volumes:
+        - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+        - ./MongoDB:/data/db
+        ports:
+        - 27017:27017
+        restart: unless-stopped
+        networks:
+            - network
+networks:
+  network: {}
