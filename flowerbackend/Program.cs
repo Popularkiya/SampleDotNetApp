@@ -30,6 +30,8 @@ namespace flowerbackend
         {
             var queueName = "my-queue";
 
+            CreateHostBuilder(args).Build().Run();
+
             var factory = new ConnectionFactory()
             {
                 HostName = "localhost",
@@ -46,14 +48,14 @@ namespace flowerbackend
             Console.WriteLine(" Press any key to exit.");
             Console.ReadKey();
 
-            //CreateHostBuilder(args).Build().Run();
+            
         }
-        /*
+
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });*/
+                });
     }
 }
