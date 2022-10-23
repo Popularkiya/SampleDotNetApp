@@ -28,19 +28,18 @@ namespace flowerbackend
 
         public static void Main(string[] args)
         {
+            var queueName = "my-queue";
+
             var factory = new ConnectionFactory()
             {
-                UserName = "guest",
-                Password = "guest",
                 HostName = "localhost",
-                VirtualHost = "15672"
             };
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                channel.QueueDeclare("message_queue", false, false, false, null);
+                channel.QueueDeclare("my-queue", true, false, false, null);
                 var consumer = new MyConsumer(channel);
-                channel.BasicConsume("message_queue", true, consumer);
+                channel.BasicConsume("my-queue", true, consumer);
                 Console.ReadKey();
             }
 
