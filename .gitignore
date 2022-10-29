@@ -31,3 +31,6 @@ ops/*.retry
 # IDE
 .idea/
 .vs/
+
+#vloumes
+.docker/
