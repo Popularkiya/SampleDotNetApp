@@ -1,59 +1,59 @@
 services:
-    rabbitmq:
-        image: rabbitmq:3.8-management-alpine
-        container_name: 'rabbitmq'
-        restart: unless-stopped
-        ports:
-            - 5672:5672
-            - 15672:15672
-        volumes:
-            - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-            - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-        environment:
-            RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
-            RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-        networks:
-            - rabbitmq_net
+  rabbitmq:
+    image: rabbitmq:3.8-management-alpine
+    container_name: "rabbitmq"
+    restart: unless-stopped
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    environment:
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    networks:
+      - rabbitmq_net
 
-    flowerbackend:
-        container_name: flowerbackend
-        build:
-            context: ./flowerbackend
-            dockerfile: Dockerfile
-        depends_on:
-            - rabbitmq
-        restart: unless-stopped
-        ports:
-            - 5000:80
-        networks:
-            - rabbitmq_net
+  flowerbackend:
+    container_name: flowerbackend
+    build:
+      context: ./flowerbackend
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
+    ports:
+      - 5000:80
+    networks:
+      - rabbitmq_net
 
-    rabbitmq-producer:
-        container_name: rabbitmq-producer
-        build:
-            context: ./rabbitmq-producer
-            dockerfile: Dockerfile
-        depends_on:
-            - rabbitmq
-        restart: unless-stopped
-        environment:
-            QUEUE_NAME: my-queue
-            AMQP_URL: "amqp://guest:guest@rabbitmq"
-        ports:
-            - 3000:3000
-        networks:
-            - rabbitmq_net
-    
-#    flower-web-app:
-#        container_name: flower-web-app
-#        build:
-#            context: ./flower-web-app
-#            dockerfile: Dockerfile    
-#        ports:
-#            - 8080:80
-#        networks:
-#            - network
+  rabbitmq-producer:
+    container_name: rabbitmq-producer
+    build:
+      context: ./rabbitmq-producer
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
+    environment:
+      QUEUE_NAME: my-queue
+      AMQP_URL: "amqp://guest:guest@rabbitmq"
+    ports:
+      - 3000:3000
+    networks:
+      - rabbitmq_net
+
+  flower-web-app:
+    container_name: flowerfrontend
+    build:
+      context: ./flower-web-app
+      dockerfile: Dockerfile
+    ports:
+      - 4000:4000
+    stdin_open: true
+    tty: true
 networks:
   rabbitmq_net:
     driver: bridge
