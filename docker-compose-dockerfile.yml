@@ -14,7 +14,9 @@ services:
 
   flowerbackend:
     container_name: flowerbackend
-    image: popularkiya/flowerbackend
+    build:
+      context: ./flowerbackend
+      dockerfile: Dockerfile
     depends_on:
       - rabbitmq
     restart: unless-stopped
@@ -25,7 +27,9 @@ services:
 
   rabbitmq-producer:
     container_name: rabbitmq-producer
-    image: popularkiya/rabbitmq-producer
+    build:
+      context: ./rabbitmq-producer
+      dockerfile: Dockerfile
     depends_on:
       - rabbitmq
     restart: unless-stopped
@@ -38,8 +42,10 @@ services:
       - rabbitmq_net
 
   flower-web-app:
-    container_name: flower-web-app
-    image: popularkiya/flower-web-app
+    container_name: flowerfrontend
+    build:
+      context: ./flower-web-app
+      dockerfile: Dockerfile
     ports:
       - 17526:4000
     stdin_open: true
