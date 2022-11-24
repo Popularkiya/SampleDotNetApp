@@ -28,12 +28,13 @@ namespace flowerbackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<DatabaseSettings>(Configuration.GetSection("FlowerDatabase"));
             services.AddHostedService<RabbitMQListener>();
             services.AddHostedService<TemperatureRabbitMQ>();
-            services.AddHostedService<HumidityRabbitMQ>();
-            services.AddHostedService<CarbonDioxideRabbitMQ>();
-            services.AddHostedService<UltravioletRabbitMQ>();
-            services.AddScoped<IService<Temperature>, TemperatureService>();
+            //services.AddHostedService<HumidityRabbitMQ>();
+            //services.AddHostedService<CarbonDioxideRabbitMQ>();
+            //services.AddHostedService<UltravioletRabbitMQ>();
+            services.AddSingleton<TemperatureService>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -44,12 +45,9 @@ namespace flowerbackend
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "flowerbackend v1"));
-            }
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "flowerbackend v1"));
 
             app.UseRouting();
             app.UseAuthorization();

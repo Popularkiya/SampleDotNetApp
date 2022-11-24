@@ -5,10 +5,6 @@ services:
     restart: unless-stopped
     ports:
       - 17523:15672
-    environment:
-      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     networks:
       - rabbitmq_net
 
@@ -19,6 +15,7 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - rabbitmq
+      - mongodb
     restart: unless-stopped
     environment:
       QUEUE_NAME: my-queue
@@ -27,8 +24,13 @@ services:
       UV_QUEUE: uv-queue
       CO2_QUEUE: co2-queue
       AMQP_URL: "amqp://guest:guest@rabbitmq"
+      TEMP_COLLECTION: Temperature
+      HUMIDITY_COLLECTIONE: Humidity
+      UV_COLLECTION: Ultraviolet
+      CO2_COLLECTION: CarbonDioxide
     ports:
       - 17524:80
+      #- 17524:5000
     networks:
       - rabbitmq_net
 
@@ -61,6 +63,15 @@ services:
       - 17526:4000
     stdin_open: true
     tty: true
+
+  mongodb:
+    image : mongo
+    container_name: mongodb
+    ports:
+    - 27017:27017
+    restart: unless-stopped
+    volumes:
+      - ./init-mongodb/initDb.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
 networks:
   rabbitmq_net:
     driver: bridge
