@@ -8,19 +8,19 @@ using System.Text;
 
 namespace flowerbackend.RabbitMQ
 {
-    public class RabbitMQListener : BackgroundService
+    public class HumidityRabbitMQ : BackgroundService
     {
         private string queueName;
         private ConnectionFactory connectionFactory;
         private IConnection connection = null;
         private IModel channel;
 
-        public RabbitMQListener()
+        public HumidityRabbitMQ()
         {
-            queueName = Environment.GetEnvironmentVariable("QUEUE_NAME");
+            queueName = Environment.GetEnvironmentVariable("HUMIDITY_QUEUE");
             connectionFactory = new ConnectionFactory
             {
-                Uri = new Uri(Environment.GetEnvironmentVariable("AMQP_URL")) //new Uri("amqp://guest:guest@rabbitmq")
+                Uri = new Uri(Environment.GetEnvironmentVariable("AMQP_URL"))
             };
             connection = connectionFactory.CreateConnection();
             channel = connection.CreateModel();
@@ -35,11 +35,11 @@ namespace flowerbackend.RabbitMQ
                 consumer.Received += (channel, msg) =>
                 {
                     var message = Encoding.UTF8.GetString(msg.Body.ToArray());
-                    Console.WriteLine(message);
+                    Console.WriteLine("humitidy:" + message);
                 };
                 channel.BasicConsume(queueName, true, consumer);
             }
-            catch (Exception){ }
+            catch (Exception) { }
             return Task.CompletedTask;
         }
     }
