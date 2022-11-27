@@ -50,7 +50,7 @@ namespace flowerbackend.RabbitMQ
                         await temperatureService.CreateAsync(temp);
                     } catch (Exception) {
                         Temperature myMock = new Temperature();
-                        myMock.Id = "1";
+                        myMock.Id = "000000000000000000000001";
                         myMock.Value = 2.0;
                         Console.WriteLine("temp:" + message + " was an incorrect json for this class, correct json would be:" + Newtonsoft.Json.JsonConvert.SerializeObject(myMock));
                     }

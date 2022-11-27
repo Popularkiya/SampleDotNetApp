@@ -1,10 +1,7 @@
 ﻿using flowerbackend.Models;
 using flowerbackend.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace flowerbackend.Controllers
@@ -23,7 +20,7 @@ namespace flowerbackend.Controllers
         [HttpGet]
         public async Task<List<Temperature>> Get() => await temperatureService.GetAsync();
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:length(24)}")]
         public async Task<ActionResult<Temperature>> Get(string id)
         {
             var temp = await temperatureService.GetAsync(id);

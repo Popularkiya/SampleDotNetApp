@@ -29,12 +29,18 @@ namespace flowerbackend
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<DatabaseSettings>(Configuration.GetSection("SI_175237"));
+
             services.AddHostedService<RabbitMQListener>();
+            services.AddHostedService<CarbonDioxideRabbitMQ>();
             services.AddHostedService<TemperatureRabbitMQ>();
-            //services.AddHostedService<HumidityRabbitMQ>();
-            //services.AddHostedService<CarbonDioxideRabbitMQ>();
-            //services.AddHostedService<UltravioletRabbitMQ>();
+            services.AddHostedService<HumidityRabbitMQ>();
+            services.AddHostedService<UltravioletRabbitMQ>();
+
+            services.AddSingleton<CarbonDioxideService>();
             services.AddSingleton<TemperatureService>();
+            services.AddSingleton<HumidityService>();
+            services.AddSingleton<UltravioletService>();
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
