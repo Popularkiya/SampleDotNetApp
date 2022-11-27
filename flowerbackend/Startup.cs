@@ -28,7 +28,7 @@ namespace flowerbackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<DatabaseSettings>(Configuration.GetSection("FlowerDatabase"));
+            services.Configure<DatabaseSettings>(Configuration.GetSection("SI_175237"));
             services.AddHostedService<RabbitMQListener>();
             services.AddHostedService<TemperatureRabbitMQ>();
             //services.AddHostedService<HumidityRabbitMQ>();

@@ -30,7 +30,6 @@ services:
       CO2_COLLECTION: CarbonDioxide
     ports:
       - 17524:80
-      #- 17524:5000
     networks:
       - rabbitmq_net
 
@@ -68,10 +67,12 @@ services:
     image : mongo
     container_name: mongodb
     ports:
-    - 27017:27017
+      - 27017:27017
     restart: unless-stopped
     volumes:
       - ./init-mongodb/initDb.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - rabbitmq_net
 networks:
   rabbitmq_net:
     driver: bridge
