@@ -3,7 +3,7 @@ using MongoDB.Bson;
 
 namespace flowerbackend.Models
 {
-    public class Temperature
+    public class Ultraviolet
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

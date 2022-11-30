@@ -5,7 +5,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
-using System.Threading.Channels;
 
 namespace flowerbackend.RabbitMQ
 {
@@ -18,10 +17,10 @@ namespace flowerbackend.RabbitMQ
 
         public RabbitMQListener()
         {
-            queueName = "my-queue";
+            queueName = Environment.GetEnvironmentVariable("QUEUE_NAME");
             connectionFactory = new ConnectionFactory
             {
-                Uri = new Uri("amqp://guest:guest@rabbitmq")
+                Uri = new Uri(Environment.GetEnvironmentVariable("AMQP_URL")) //new Uri("amqp://guest:guest@rabbitmq")
             };
             connection = connectionFactory.CreateConnection();
             channel = connection.CreateModel();
@@ -30,13 +29,17 @@ namespace flowerbackend.RabbitMQ
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += async (channel, msg) =>
+            try
             {
-                var message = Encoding.UTF8.GetString(msg.Body.ToArray());
-                Console.WriteLine(message);
-            };
-            channel.BasicConsume(queueName, true, consumer);
+                var consumer = new EventingBasicConsumer(channel);
+                consumer.Received += (channel, msg) =>
+                {
+                    var message = Encoding.UTF8.GetString(msg.Body.ToArray());
+                    Console.WriteLine(message);
+                };
+                channel.BasicConsume(queueName, true, consumer);
+            }
+            catch (Exception){ }
             return Task.CompletedTask;
         }
     }

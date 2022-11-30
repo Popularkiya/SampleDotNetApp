@@ -1,15 +1,12 @@
 ﻿using flowerbackend.Models;
 using flowerbackend.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace flowerbackend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/temperature")]
     [ApiController]
     public class TemperatureController : ControllerBase
     {
@@ -20,11 +17,27 @@ namespace flowerbackend.Controllers
             temperatureService = tempService;
         }
 
-        [HttpGet("list")]
-        public IEnumerable<Temperature> ProductList()
+        [HttpGet]
+        public async Task<List<Temperature>> Get() => await temperatureService.GetAsync();
+
+        [HttpGet("{id:length(24)}")]
+        public async Task<ActionResult<Temperature>> Get(string id)
         {
-            var list = temperatureService.GetList();
-            return list;
+            var temp = await temperatureService.GetAsync(id);
+
+            if (temp is null)
+            {
+                return NotFound();
+            }
+
+            return temp;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Post(Temperature newTemp)
+        {
+            await temperatureService.CreateAsync(newTemp);
+            return CreatedAtAction(nameof(Get), new { id = newTemp.Id }, newTemp);
         }
     }
 }
