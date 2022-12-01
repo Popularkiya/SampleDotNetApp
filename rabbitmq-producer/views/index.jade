@@ -2,7 +2,12 @@ extends layout
 
 block content
   h1= 'Example RabbitMQ Producer'
-
+  h3= 'Available commands'
+  p= '\\queue - shows currently choosen queue which will receive messages you type in.'
+  p= '\\queue(<queue_name>) - changes current queue to <queue_name>.'
+  p= '\\start - starts one minute simulation of data sending.'
+  p= '\\start(<minutes>) - starts simulation of data sending and lasts for <minutes> minutes.'
+  p= 'Anything else typed in will be treated as a message and will be sent to currently choosen queue.'
   div
     form(action='/message',method='post')
       div.input

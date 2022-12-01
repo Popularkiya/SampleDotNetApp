@@ -69,6 +69,10 @@ services:
     ports:
       - 27017:27017
     restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: student
+      # MONGO_INITDB_DATABASE: SI_175237
     volumes:
       - ./init-mongodb/initDb.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
