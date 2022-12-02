@@ -14,6 +14,9 @@ COPY package-lock.json ./
 RUN npm install
 RUN npm install react-scripts@3.4.1 -g
 RUN npm install react-router-dom --save
+RUN npm install bootstrap
+RUN npm install node-sass
+RUN npm install axios
 
 # add app
 COPY . ./
