@@ -18,6 +18,8 @@ namespace flowerbackend
 {
     public class Startup
     {
+        public string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -28,6 +30,15 @@ namespace flowerbackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  policy =>
+                                  {
+                                      policy.WithOrigins("http://localhost:17526");
+                                  });
+            });
+
             services.Configure<DatabaseSettings>(Configuration.GetSection("SI_175237"));
 
             services.AddHostedService<RabbitMQListener>();
@@ -56,6 +67,7 @@ namespace flowerbackend
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "flowerbackend v1"));
 
             app.UseRouting();
+            app.UseCors(MyAllowSpecificOrigins);
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
