@@ -32,11 +32,13 @@ namespace flowerbackend
         {
             services.AddCors(options =>
             {
-                options.AddPolicy(name: MyAllowSpecificOrigins,
-                                  policy =>
-                                  {
-                                      policy.WithOrigins("http://localhost:17526");
-                                  });
+                options.AddPolicy(MyAllowSpecificOrigins,
+                                      policy =>
+                                      {
+                                          policy.WithOrigins("*")
+                                                              .AllowAnyHeader()
+                                                              .AllowAnyMethod();
+                                      });
             });
 
             services.Configure<DatabaseSettings>(Configuration.GetSection("SI_175237"));

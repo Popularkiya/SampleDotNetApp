@@ -5,8 +5,6 @@ services:
     restart: unless-stopped
     ports:
       - 17523:15672
-    networks:
-      - rabbitmq_net
 
   flowerbackend:
     container_name: flowerbackend
@@ -30,8 +28,6 @@ services:
       CO2_COLLECTION: CarbonDioxide
     ports:
       - 17524:80
-    networks:
-      - rabbitmq_net
 
   rabbitmq-producer:
     container_name: rabbitmq-producer
@@ -50,8 +46,6 @@ services:
       AMQP_URL: "amqp://guest:guest@rabbitmq"
     ports:
       - 17525:3000
-    networks:
-      - rabbitmq_net
 
   flower-web-app:
     container_name: flowerfrontend
@@ -75,8 +69,3 @@ services:
       # MONGO_INITDB_DATABASE: SI_175237
     volumes:
       - ./init-mongodb/initDb.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    networks:
-      - rabbitmq_net
-networks:
-  rabbitmq_net:
-    driver: bridge

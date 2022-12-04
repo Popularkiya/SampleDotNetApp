@@ -54,6 +54,7 @@ function App() {
           </ul>
         </nav>
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
           <Route path="/carbon-dioxide" element={<CarbonDioxide />} />
           <Route path="/humidity" element={<Humidity />} />
