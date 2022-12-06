@@ -2,43 +2,46 @@ import React, { Component } from "react";
 import { variables } from "./Variables.js";
 import axios, * as others from "axios";
 
-export class Temperature extends Component {
+export class CarbonDioxide extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      temperature: [],
+      carbonDioxide: [],
 
-      TemperatureIdFilter: "",
-      TemperatureValueFilter: "",
-      TemperatureWithoutFilter: [],
+      CarbonDioxideIdFilter: "",
+      CarbonDioxideValueFilter: "",
+      CarbonDioxideWithoutFilter: [],
     };
   }
 
   FilterFn() {
-    var TemperatureIdFilter = this.state.TemperatureIdFilter;
-    var TemperatureValueFilter = this.state.TemperatureValueFilter;
+    var CarbonDioxideIdFilter = this.state.CarbonDioxideIdFilter;
+    var CarbonDioxideValueFilter = this.state.CarbonDioxideValueFilter;
 
-    var filteredData = this.state.TemperatureWithoutFilter.filter(function (
+    var filteredData = this.state.CarbonDioxideWithoutFilter.filter(function (
       el
     ) {
       return (
         el.id
           .toString()
           .toLowerCase()
-          .includes(TemperatureIdFilter.toString().trim().toLowerCase()) &&
+          .includes(CarbonDioxideIdFilter.toString().trim().toLowerCase()) &&
         el.value
           .toString()
           .toLowerCase()
-          .includes(TemperatureValueFilter.toString().trim().toLowerCase())
+          .includes(CarbonDioxideValueFilter.toString().trim().toLowerCase())
       );
     });
 
-    this.setState({ temperature: filteredData });
+    this.setState({ carbonDioxide: filteredData });
   }
 
   sortResult(prop, asc) {
-    var sortedData = this.state.TemperatureWithoutFilter.sort(function (a, b) {
+    var sortedData = this.state.CarbonDioxideWithoutFilter.sort(function (
+      a,
+      b
+    ) {
       if (asc) {
         return a[prop] > b[prop] ? 1 : a[prop] < b[prop] ? -1 : 0;
       } else {
@@ -46,26 +49,26 @@ export class Temperature extends Component {
       }
     });
 
-    this.setState({ temperature: sortedData });
+    this.setState({ carbonDioxide: sortedData });
   }
 
-  changeTemperatureIdFilter = (e) => {
-    this.state.TemperatureIdFilter = e.target.value;
+  changeCarbonDioxideIdFilter = (e) => {
+    this.state.CarbonDioxideIdFilter = e.target.value;
     this.FilterFn();
   };
 
-  changeTemperatureValueFilter = (e) => {
-    this.state.TemperatureValueFilter = e.target.value;
+  changeCarbonDioxideValueFilter = (e) => {
+    this.state.CarbonDioxideValueFilter = e.target.value;
     this.FilterFn();
   };
 
   async refreshList() {
     try {
-      const response = await axios.get("api/temperature/");
+      const response = await axios.get("api/carbondioxide/");
 
       this.setState({
-        temperature: response.data,
-        TemperatureWithoutFilter: response.data,
+        carbonDioxide: response.data,
+        CarbonDioxideWithoutFilter: response.data,
       });
     } catch (err) {
       console.log(err);
@@ -77,7 +80,7 @@ export class Temperature extends Component {
   }
 
   render() {
-    const { temperature } = this.state;
+    const { carbonDioxide } = this.state;
 
     return (
       <div>
@@ -88,7 +91,7 @@ export class Temperature extends Component {
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeTemperatureIdFilter}
+                    onChange={this.changeCarbonDioxideIdFilter}
                     placeholder="Filter"
                   />
                   <button
@@ -125,13 +128,13 @@ export class Temperature extends Component {
                     </svg>
                   </button>
                 </div>
-                Temperature Id
+                Carbon Dioxide Id
               </th>
               <th>
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeTemperatureValueFilter}
+                    onChange={this.changeCarbonDioxideValueFilter}
                     placeholder="Filter"
                   />
                   <button
@@ -168,12 +171,12 @@ export class Temperature extends Component {
                     </svg>
                   </button>
                 </div>
-                Temperature Value
+                Carbon Dioxide Value
               </th>
             </tr>
           </thead>
           <tbody>
-            {temperature.map((temp) => (
+            {carbonDioxide.map((temp) => (
               <tr key={temp.id}>
                 <td>{temp.id}</td>
                 <td>{temp.value}</td>

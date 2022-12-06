@@ -2,43 +2,41 @@ import React, { Component } from "react";
 import { variables } from "./Variables.js";
 import axios, * as others from "axios";
 
-export class Temperature extends Component {
+export class Humidity extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      temperature: [],
+      humidity: [],
 
-      TemperatureIdFilter: "",
-      TemperatureValueFilter: "",
-      TemperatureWithoutFilter: [],
+      HumidityIdFilter: "",
+      HumidityValueFilter: "",
+      HumidityWithoutFilter: [],
     };
   }
 
   FilterFn() {
-    var TemperatureIdFilter = this.state.TemperatureIdFilter;
-    var TemperatureValueFilter = this.state.TemperatureValueFilter;
+    var HumidityIdFilter = this.state.HumidityIdFilter;
+    var HumidityValueFilter = this.state.HumidityValueFilter;
 
-    var filteredData = this.state.TemperatureWithoutFilter.filter(function (
-      el
-    ) {
+    var filteredData = this.state.HumidityWithoutFilter.filter(function (el) {
       return (
         el.id
           .toString()
           .toLowerCase()
-          .includes(TemperatureIdFilter.toString().trim().toLowerCase()) &&
+          .includes(HumidityIdFilter.toString().trim().toLowerCase()) &&
         el.value
           .toString()
           .toLowerCase()
-          .includes(TemperatureValueFilter.toString().trim().toLowerCase())
+          .includes(HumidityValueFilter.toString().trim().toLowerCase())
       );
     });
 
-    this.setState({ temperature: filteredData });
+    this.setState({ humidity: filteredData });
   }
 
   sortResult(prop, asc) {
-    var sortedData = this.state.TemperatureWithoutFilter.sort(function (a, b) {
+    var sortedData = this.state.HumidityWithoutFilter.sort(function (a, b) {
       if (asc) {
         return a[prop] > b[prop] ? 1 : a[prop] < b[prop] ? -1 : 0;
       } else {
@@ -46,26 +44,26 @@ export class Temperature extends Component {
       }
     });
 
-    this.setState({ temperature: sortedData });
+    this.setState({ humidity: sortedData });
   }
 
-  changeTemperatureIdFilter = (e) => {
-    this.state.TemperatureIdFilter = e.target.value;
+  changeHumidityIdFilter = (e) => {
+    this.state.HumidityIdFilter = e.target.value;
     this.FilterFn();
   };
 
-  changeTemperatureValueFilter = (e) => {
-    this.state.TemperatureValueFilter = e.target.value;
+  changeHumidityValueFilter = (e) => {
+    this.state.HumidityValueFilter = e.target.value;
     this.FilterFn();
   };
 
   async refreshList() {
     try {
-      const response = await axios.get("api/temperature/");
+      const response = await axios.get("api/humidity/");
 
       this.setState({
-        temperature: response.data,
-        TemperatureWithoutFilter: response.data,
+        humidity: response.data,
+        HumidityWithoutFilter: response.data,
       });
     } catch (err) {
       console.log(err);
@@ -77,7 +75,7 @@ export class Temperature extends Component {
   }
 
   render() {
-    const { temperature } = this.state;
+    const { humidity } = this.state;
 
     return (
       <div>
@@ -88,7 +86,7 @@ export class Temperature extends Component {
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeTemperatureIdFilter}
+                    onChange={this.changeHumidityIdFilter}
                     placeholder="Filter"
                   />
                   <button
@@ -125,13 +123,13 @@ export class Temperature extends Component {
                     </svg>
                   </button>
                 </div>
-                Temperature Id
+                Humidity Id
               </th>
               <th>
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeTemperatureValueFilter}
+                    onChange={this.changeHumidityValueFilter}
                     placeholder="Filter"
                   />
                   <button
@@ -168,12 +166,12 @@ export class Temperature extends Component {
                     </svg>
                   </button>
                 </div>
-                Temperature Value
+                Humidity Value
               </th>
             </tr>
           </thead>
           <tbody>
-            {temperature.map((temp) => (
+            {humidity.map((temp) => (
               <tr key={temp.id}>
                 <td>{temp.id}</td>
                 <td>{temp.value}</td>

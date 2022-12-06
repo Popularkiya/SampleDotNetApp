@@ -2,43 +2,43 @@ import React, { Component } from "react";
 import { variables } from "./Variables.js";
 import axios, * as others from "axios";
 
-export class Temperature extends Component {
+export class Ultraviolet extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      temperature: [],
+      ultraviolets: [],
 
-      TemperatureIdFilter: "",
-      TemperatureValueFilter: "",
-      TemperatureWithoutFilter: [],
+      UltravioletIdFilter: "",
+      UltravioletValueFilter: "",
+      UltravioletWithoutFilter: [],
     };
   }
 
   FilterFn() {
-    var TemperatureIdFilter = this.state.TemperatureIdFilter;
-    var TemperatureValueFilter = this.state.TemperatureValueFilter;
+    var UltravioletIdFilter = this.state.UltravioletIdFilter;
+    var UltravioletValueFilter = this.state.UltravioletValueFilter;
 
-    var filteredData = this.state.TemperatureWithoutFilter.filter(function (
+    var filteredData = this.state.UltravioletWithoutFilter.filter(function (
       el
     ) {
       return (
         el.id
           .toString()
           .toLowerCase()
-          .includes(TemperatureIdFilter.toString().trim().toLowerCase()) &&
+          .includes(UltravioletIdFilter.toString().trim().toLowerCase()) &&
         el.value
           .toString()
           .toLowerCase()
-          .includes(TemperatureValueFilter.toString().trim().toLowerCase())
+          .includes(UltravioletValueFilter.toString().trim().toLowerCase())
       );
     });
 
-    this.setState({ temperature: filteredData });
+    this.setState({ ultraviolets: filteredData });
   }
 
   sortResult(prop, asc) {
-    var sortedData = this.state.TemperatureWithoutFilter.sort(function (a, b) {
+    var sortedData = this.state.UltravioletWithoutFilter.sort(function (a, b) {
       if (asc) {
         return a[prop] > b[prop] ? 1 : a[prop] < b[prop] ? -1 : 0;
       } else {
@@ -46,38 +46,38 @@ export class Temperature extends Component {
       }
     });
 
-    this.setState({ temperature: sortedData });
+    this.setState({ ultraviolets: sortedData });
   }
 
-  changeTemperatureIdFilter = (e) => {
-    this.state.TemperatureIdFilter = e.target.value;
+  changeUltravioletIdFilter = (e) => {
+    this.state.UltravioletIdFilter = e.target.value;
     this.FilterFn();
   };
 
-  changeTemperatureValueFilter = (e) => {
-    this.state.TemperatureValueFilter = e.target.value;
+  changeUltravioletValueFilter = (e) => {
+    this.state.UltravioletValueFilter = e.target.value;
     this.FilterFn();
   };
 
   async refreshList() {
     try {
-      const response = await axios.get("api/temperature/");
+      const response = await axios.get("api/ultraviolet/");
 
       this.setState({
-        temperature: response.data,
-        TemperatureWithoutFilter: response.data,
+        ultraviolets: response.data,
+        UltravioletWithoutFilter: response.data,
       });
     } catch (err) {
       console.log(err);
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.refreshList();
   }
 
   render() {
-    const { temperature } = this.state;
+    const { ultraviolets } = this.state;
 
     return (
       <div>
@@ -88,7 +88,7 @@ export class Temperature extends Component {
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeTemperatureIdFilter}
+                    onChange={this.changeUltravioletIdFilter}
                     placeholder="Filter"
                   />
                   <button
@@ -125,13 +125,13 @@ export class Temperature extends Component {
                     </svg>
                   </button>
                 </div>
-                Temperature Id
+                Ultraviolet Id
               </th>
               <th>
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeTemperatureValueFilter}
+                    onChange={this.changeUltravioletValueFilter}
                     placeholder="Filter"
                   />
                   <button
@@ -168,15 +168,15 @@ export class Temperature extends Component {
                     </svg>
                   </button>
                 </div>
-                Temperature Value
+                Ultraviolet Value
               </th>
             </tr>
           </thead>
           <tbody>
-            {temperature.map((temp) => (
-              <tr key={temp.id}>
-                <td>{temp.id}</td>
-                <td>{temp.value}</td>
+            {ultraviolets.map((uv) => (
+              <tr key={uv.id}>
+                <td>{uv.id}</td>
+                <td>{uv.value}</td>
               </tr>
             ))}
           </tbody>
