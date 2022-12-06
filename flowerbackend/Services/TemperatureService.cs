@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using MongoDB.Driver;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
+using System;
+using flowerbackend.Data;
 
 namespace flowerbackend.Services
 {
@@ -22,6 +24,13 @@ namespace flowerbackend.Services
 
         public async Task<Temperature?> GetAsync(string id) => await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
-        public async Task CreateAsync(Temperature newBook) => await collection.InsertOneAsync(newBook);
+        public async Task CreateAsync(Temperature newBook)
+        {
+            newBook.Timestamp = DateTime.Now.ToString("MM/dd/yy H:mm:ss");
+            if (newBook.Value >= 22.0) { newBook.Status = Constants.HIGH; }
+            else if (newBook.Value <= 19.5) { newBook.Status = Constants.LOW; }
+            else { newBook.Status = Constants.OK; }
+            await collection.InsertOneAsync(newBook);
+        }
     }
 }
