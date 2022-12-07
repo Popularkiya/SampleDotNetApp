@@ -17,6 +17,7 @@ RUN npm install react-router-dom --save
 RUN npm install bootstrap
 RUN npm install node-sass
 RUN npm install axios
+RUN npm install --save react-chartjs-2 chart.js
 
 # add app
 COPY . ./

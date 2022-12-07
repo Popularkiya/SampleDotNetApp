@@ -1,6 +1,15 @@
-import React, { Component } from "react";
-import { variables } from "./Variables.js";
-import axios, * as others from "axios";
+import React, { Component, useEffect } from "react";
+import axios from "axios";
+import {
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+
+ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement);
 
 export class CarbonDioxide extends Component {
   constructor(props) {
@@ -9,28 +18,32 @@ export class CarbonDioxide extends Component {
     this.state = {
       carbonDioxide: [],
 
-      CarbonDioxideIdFilter: "",
-      CarbonDioxideValueFilter: "",
+      CarbonDioxideInstanceFilter: "",
+      CarbonDioxideTimeStampFilter: "",
       CarbonDioxideWithoutFilter: [],
     };
   }
 
   FilterFn() {
-    var CarbonDioxideIdFilter = this.state.CarbonDioxideIdFilter;
-    var CarbonDioxideValueFilter = this.state.CarbonDioxideValueFilter;
+    var CarbonDioxideInstanceFilter = this.state.CarbonDioxideInstanceFilter;
+    var CarbonDioxideTimeStampFilter = this.state.CarbonDioxideTimeStampFilter;
 
     var filteredData = this.state.CarbonDioxideWithoutFilter.filter(function (
       el
     ) {
       return (
-        el.id
+        el.instance
           .toString()
           .toLowerCase()
-          .includes(CarbonDioxideIdFilter.toString().trim().toLowerCase()) &&
-        el.value
+          .includes(
+            CarbonDioxideInstanceFilter.toString().trim().toLowerCase()
+          ) &&
+        el.timestamp
           .toString()
           .toLowerCase()
-          .includes(CarbonDioxideValueFilter.toString().trim().toLowerCase())
+          .includes(
+            CarbonDioxideTimeStampFilter.toString().trim().toLowerCase()
+          )
       );
     });
 
@@ -52,13 +65,13 @@ export class CarbonDioxide extends Component {
     this.setState({ carbonDioxide: sortedData });
   }
 
-  changeCarbonDioxideIdFilter = (e) => {
-    this.state.CarbonDioxideIdFilter = e.target.value;
+  changeCarbonDioxideInstanceFilter = (e) => {
+    this.state.CarbonDioxideInstanceFilter = e.target.value;
     this.FilterFn();
   };
 
-  changeCarbonDioxideValueFilter = (e) => {
-    this.state.CarbonDioxideValueFilter = e.target.value;
+  changeCarbonDioxideTimeStampFilter = (e) => {
+    this.state.CarbonDioxideTimeStampFilter = e.target.value;
     this.FilterFn();
   };
 
@@ -84,20 +97,65 @@ export class CarbonDioxide extends Component {
 
     return (
       <div>
+        <div>
+          <Line
+            data={{
+              labels: carbonDioxide.map((co2) => co2.timestamp),
+              datasets: [
+                {
+                  label: "Carbon Dioxide Values",
+                  data: carbonDioxide.map((co2) => co2.value),
+                  backgroundColor: "rgb(156, 211, 100)",
+                  borderColor: "rgb(156, 211, 100)",
+                  borderWidth: 1,
+                },
+              ],
+            }}
+            height={400}
+            options={{
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  title: {
+                    display: true,
+                    text: "Values",
+                  },
+                },
+                x: {
+                  title: {
+                    display: true,
+                    text: "Time Stamp",
+                  },
+                },
+              },
+              plugins: {
+                legend: {
+                  display: true,
+                  labels: {
+                    color: "black",
+                  },
+                },
+              },
+            }}
+          />
+        </div>
         <table className="table table-strpied">
           <thead>
             <tr>
+              <th>Id</th>
+              <th>Value</th>
               <th>
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeCarbonDioxideIdFilter}
+                    onChange={this.changeCarbonDioxideInstanceFilter}
                     placeholder="Filter"
                   />
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("id", true)}
+                    onClick={() => this.sortResult("instance", true)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -114,7 +172,7 @@ export class CarbonDioxide extends Component {
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("id", false)}
+                    onClick={() => this.sortResult("instance", false)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -128,19 +186,19 @@ export class CarbonDioxide extends Component {
                     </svg>
                   </button>
                 </div>
-                Carbon Dioxide Id
+                Instance
               </th>
               <th>
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeCarbonDioxideValueFilter}
+                    onChange={this.changeCarbonDioxideTimeStampFilter}
                     placeholder="Filter"
                   />
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("value", true)}
+                    onClick={() => this.sortResult("timestamp", true)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -157,7 +215,7 @@ export class CarbonDioxide extends Component {
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("value", false)}
+                    onClick={() => this.sortResult("timestamp", false)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -171,15 +229,19 @@ export class CarbonDioxide extends Component {
                     </svg>
                   </button>
                 </div>
-                Carbon Dioxide Value
+                Time Stamp
               </th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {carbonDioxide.map((temp) => (
-              <tr key={temp.id}>
-                <td>{temp.id}</td>
-                <td>{temp.value}</td>
+            {carbonDioxide.map((co2) => (
+              <tr key={co2.id}>
+                <td>{co2.id}</td>
+                <td>{co2.value}</td>
+                <td>{co2.instance}</td>
+                <td>{co2.timestamp}</td>
+                <td>{co2.status}</td>
               </tr>
             ))}
           </tbody>
