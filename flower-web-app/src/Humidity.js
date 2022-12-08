@@ -1,6 +1,17 @@
 import React, { Component } from "react";
-import { variables } from "./Variables.js";
-import axios, * as others from "axios";
+import axios from "axios";
+import {
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+import { CSVLink } from "react-csv";
+import { Button } from "react-bootstrap";
+
+ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement);
 
 export class Humidity extends Component {
   constructor(props) {
@@ -9,26 +20,26 @@ export class Humidity extends Component {
     this.state = {
       humidity: [],
 
-      HumidityIdFilter: "",
-      HumidityValueFilter: "",
+      HumidityInstanceFilter: "",
+      HumidityTimeStampFilter: "",
       HumidityWithoutFilter: [],
     };
   }
 
   FilterFn() {
-    var HumidityIdFilter = this.state.HumidityIdFilter;
-    var HumidityValueFilter = this.state.HumidityValueFilter;
+    var HumidityInstanceFilter = this.state.HumidityInstanceFilter;
+    var HumidityTimeStampFilter = this.state.HumidityTimeStampFilter;
 
     var filteredData = this.state.HumidityWithoutFilter.filter(function (el) {
       return (
-        el.id
+        el.instance
           .toString()
           .toLowerCase()
-          .includes(HumidityIdFilter.toString().trim().toLowerCase()) &&
-        el.value
+          .includes(HumidityInstanceFilter.toString().trim().toLowerCase()) &&
+        el.timestamp
           .toString()
           .toLowerCase()
-          .includes(HumidityValueFilter.toString().trim().toLowerCase())
+          .includes(HumidityTimeStampFilter.toString().trim().toLowerCase())
       );
     });
 
@@ -47,13 +58,13 @@ export class Humidity extends Component {
     this.setState({ humidity: sortedData });
   }
 
-  changeHumidityIdFilter = (e) => {
-    this.state.HumidityIdFilter = e.target.value;
+  changeHumidityInstanceFilter = (e) => {
+    this.state.HumidityInstanceFilter = e.target.value;
     this.FilterFn();
   };
 
-  changeHumidityValueFilter = (e) => {
-    this.state.HumidityValueFilter = e.target.value;
+  changeHumidityTimeStampFilter = (e) => {
+    this.state.HumidityTimeStampFilter = e.target.value;
     this.FilterFn();
   };
 
@@ -74,25 +85,113 @@ export class Humidity extends Component {
     this.refreshList();
   }
 
+  exportData() {
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(this.state.humidity)
+    )}`;
+    const link = document.createElement("a");
+    link.href = jsonString;
+    link.download = "HumidityReport.json";
+
+    link.click();
+  }
+
   render() {
     const { humidity } = this.state;
 
     return (
       <div>
+        <div>
+          <Line
+            data={{
+              labels: humidity.map((hum) => hum.timestamp),
+              datasets: [
+                {
+                  label: "Humidity Values",
+                  data: humidity.map((hum) => hum.value),
+                  backgroundColor: "rgb(156, 211, 100)",
+                  borderColor: "rgb(156, 211, 100)",
+                  borderWidth: 1,
+                },
+              ],
+            }}
+            height={400}
+            options={{
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  title: {
+                    display: true,
+                    text: "Values",
+                  },
+                },
+                x: {
+                  title: {
+                    display: true,
+                    text: "Time Stamp",
+                  },
+                },
+              },
+              plugins: {
+                legend: {
+                  display: true,
+                  labels: {
+                    color: "black",
+                  },
+                },
+              },
+            }}
+          />
+        </div>
+        <div>
+          <Button
+            variant="primary"
+            onClick={() => this.exportData()}
+            style={{ marginLeft: "10px", marginRight: "10px" }}
+          >
+            Export data to JSON
+          </Button>
+          <CSVLink
+            {...{
+              filename: "HumidityReport.csv",
+              headers: [
+                { label: "Id", key: "id" },
+                { label: "Value", key: "value" },
+                { label: "Instance", key: "instance" },
+                { label: "Time Stamp", key: "timestamp" },
+                { label: "Status", key: "status" },
+              ],
+              data: humidity,
+            }}
+          >
+            <Button
+              variant="primary"
+              style={{
+                marginLeft: "10px",
+                marginRight: "10px",
+              }}
+            >
+              Export data to CSV
+            </Button>
+          </CSVLink>
+        </div>
         <table className="table table-strpied">
           <thead>
             <tr>
+              <th>Id</th>
+              <th>Value</th>
               <th>
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeHumidityIdFilter}
+                    onChange={this.changeHumidityInstanceFilter}
                     placeholder="Filter"
                   />
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("id", true)}
+                    onClick={() => this.sortResult("instance", true)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -109,7 +208,7 @@ export class Humidity extends Component {
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("id", false)}
+                    onClick={() => this.sortResult("instance", false)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -123,19 +222,19 @@ export class Humidity extends Component {
                     </svg>
                   </button>
                 </div>
-                Humidity Id
+                Instance
               </th>
               <th>
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeHumidityValueFilter}
+                    onChange={this.changeHumidityTimeStampFilter}
                     placeholder="Filter"
                   />
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("value", true)}
+                    onClick={() => this.sortResult("timestamp", true)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -152,7 +251,7 @@ export class Humidity extends Component {
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("value", false)}
+                    onClick={() => this.sortResult("timestamp", false)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -166,15 +265,19 @@ export class Humidity extends Component {
                     </svg>
                   </button>
                 </div>
-                Humidity Value
+                Time Stamp
               </th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {humidity.map((temp) => (
-              <tr key={temp.id}>
-                <td>{temp.id}</td>
-                <td>{temp.value}</td>
+            {humidity.map((hum) => (
+              <tr key={hum.id}>
+                <td>{hum.id}</td>
+                <td>{hum.value}</td>
+                <td>{hum.instance}</td>
+                <td>{hum.timestamp}</td>
+                <td>{hum.status}</td>
               </tr>
             ))}
           </tbody>

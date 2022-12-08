@@ -40,16 +40,6 @@ export class Home extends Component {
   }
 }
 
-const Header = () => {
-  return (
-    <div className="header">
-      <span className="header-title">Flower Web App</span>
-      <br />
-      <span className="header-text">.NET Internet Services Project</span>
-    </div>
-  );
-};
-
 const Card = (props) => {
   return (
     <div className={props.className}>

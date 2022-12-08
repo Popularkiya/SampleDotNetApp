@@ -1,6 +1,18 @@
 import React, { Component } from "react";
-import { variables } from "./Variables.js";
-import axios, * as others from "axios";
+import axios from "axios";
+import {
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+import { CSVLink } from "react-csv";
+import { Button } from "react-bootstrap";
+
+ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Legend);
 
 export class Ultraviolet extends Component {
   constructor(props) {
@@ -9,28 +21,30 @@ export class Ultraviolet extends Component {
     this.state = {
       ultraviolets: [],
 
-      UltravioletIdFilter: "",
-      UltravioletValueFilter: "",
+      UltravioletInstanceFilter: "",
+      UltravioletTimeStampFilter: "",
       UltravioletWithoutFilter: [],
     };
   }
 
   FilterFn() {
-    var UltravioletIdFilter = this.state.UltravioletIdFilter;
-    var UltravioletValueFilter = this.state.UltravioletValueFilter;
+    var UltravioletInstanceFilter = this.state.UltravioletInstanceFilter;
+    var UltravioletTimeStampFilter = this.state.UltravioletTimeStampFilter;
 
     var filteredData = this.state.UltravioletWithoutFilter.filter(function (
       el
     ) {
       return (
-        el.id
+        el.instance
           .toString()
           .toLowerCase()
-          .includes(UltravioletIdFilter.toString().trim().toLowerCase()) &&
-        el.value
+          .includes(
+            UltravioletInstanceFilter.toString().trim().toLowerCase()
+          ) &&
+        el.timestamp
           .toString()
           .toLowerCase()
-          .includes(UltravioletValueFilter.toString().trim().toLowerCase())
+          .includes(UltravioletTimeStampFilter.toString().trim().toLowerCase())
       );
     });
 
@@ -49,13 +63,13 @@ export class Ultraviolet extends Component {
     this.setState({ ultraviolets: sortedData });
   }
 
-  changeUltravioletIdFilter = (e) => {
-    this.state.UltravioletIdFilter = e.target.value;
+  changeUltravioletInstanceFilter = (e) => {
+    this.state.UltravioletInstanceFilter = e.target.value;
     this.FilterFn();
   };
 
-  changeUltravioletValueFilter = (e) => {
-    this.state.UltravioletValueFilter = e.target.value;
+  changeUltravioletTimeStampFilter = (e) => {
+    this.state.UltravioletTimeStampFilter = e.target.value;
     this.FilterFn();
   };
 
@@ -76,25 +90,113 @@ export class Ultraviolet extends Component {
     this.refreshList();
   }
 
+  exportData() {
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(this.state.ultraviolets)
+    )}`;
+    const link = document.createElement("a");
+    link.href = jsonString;
+    link.download = "UltravioletReport.json";
+
+    link.click();
+  }
+
   render() {
     const { ultraviolets } = this.state;
 
     return (
       <div>
+        <div>
+          <Line
+            data={{
+              labels: ultraviolets.map((uv) => uv.timestamp),
+              datasets: [
+                {
+                  label: "Ultraviolet Values",
+                  data: ultraviolets.map((uv) => uv.value),
+                  backgroundColor: "rgb(156, 211, 100)",
+                  borderColor: "rgb(156, 211, 100)",
+                  borderWidth: 1,
+                },
+              ],
+            }}
+            height={400}
+            options={{
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  title: {
+                    display: true,
+                    text: "Values",
+                  },
+                },
+                x: {
+                  title: {
+                    display: true,
+                    text: "Time Stamp",
+                  },
+                },
+              },
+              plugins: {
+                legend: {
+                  display: true,
+                  labels: {
+                    color: "black",
+                  },
+                },
+              },
+            }}
+          />
+        </div>
+        <div>
+          <Button
+            variant="primary"
+            onClick={() => this.exportData()}
+            style={{ marginLeft: "10px", marginRight: "10px" }}
+          >
+            Export data to JSON
+          </Button>
+          <CSVLink
+            {...{
+              filename: "UltravioletReport.csv",
+              headers: [
+                { label: "Id", key: "id" },
+                { label: "Value", key: "value" },
+                { label: "Instance", key: "instance" },
+                { label: "Time Stamp", key: "timestamp" },
+                { label: "Status", key: "status" },
+              ],
+              data: ultraviolets,
+            }}
+          >
+            <Button
+              variant="primary"
+              style={{
+                marginLeft: "10px",
+                marginRight: "10px",
+              }}
+            >
+              Export data to CSV
+            </Button>
+          </CSVLink>
+        </div>
         <table className="table table-strpied">
           <thead>
             <tr>
+              <th>Id</th>
+              <th>Value</th>
               <th>
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeUltravioletIdFilter}
+                    onChange={this.changeUltravioletInstanceFilter}
                     placeholder="Filter"
                   />
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("id", true)}
+                    onClick={() => this.sortResult("instance", true)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -111,7 +213,7 @@ export class Ultraviolet extends Component {
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("id", false)}
+                    onClick={() => this.sortResult("instance", false)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -125,19 +227,19 @@ export class Ultraviolet extends Component {
                     </svg>
                   </button>
                 </div>
-                Ultraviolet Id
+                Instance
               </th>
               <th>
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeUltravioletValueFilter}
+                    onChange={this.changeUltravioletTimeStampFilter}
                     placeholder="Filter"
                   />
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("value", true)}
+                    onClick={() => this.sortResult("timestamp", true)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -154,7 +256,7 @@ export class Ultraviolet extends Component {
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("value", false)}
+                    onClick={() => this.sortResult("timestamp", false)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -168,8 +270,9 @@ export class Ultraviolet extends Component {
                     </svg>
                   </button>
                 </div>
-                Ultraviolet Value
+                Time Stamp
               </th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -177,6 +280,9 @@ export class Ultraviolet extends Component {
               <tr key={uv.id}>
                 <td>{uv.id}</td>
                 <td>{uv.value}</td>
+                <td>{uv.instance}</td>
+                <td>{uv.timestamp}</td>
+                <td>{uv.status}</td>
               </tr>
             ))}
           </tbody>

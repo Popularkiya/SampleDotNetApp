@@ -1,6 +1,17 @@
 import React, { Component } from "react";
-import { variables } from "./Variables.js";
-import axios, * as others from "axios";
+import axios from "axios";
+import {
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+import { CSVLink } from "react-csv";
+import { Button } from "react-bootstrap";
+
+ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement);
 
 export class Temperature extends Component {
   constructor(props) {
@@ -9,28 +20,30 @@ export class Temperature extends Component {
     this.state = {
       temperature: [],
 
-      TemperatureIdFilter: "",
-      TemperatureValueFilter: "",
+      TemperatureInstanceFilter: "",
+      TemperatureTimeStampFilter: "",
       TemperatureWithoutFilter: [],
     };
   }
 
   FilterFn() {
-    var TemperatureIdFilter = this.state.TemperatureIdFilter;
-    var TemperatureValueFilter = this.state.TemperatureValueFilter;
+    var TemperatureInstanceFilter = this.state.TemperatureInstanceFilter;
+    var TemperatureTimeStampFilter = this.state.TemperatureTimeStampFilter;
 
     var filteredData = this.state.TemperatureWithoutFilter.filter(function (
       el
     ) {
       return (
-        el.id
+        el.instance
           .toString()
           .toLowerCase()
-          .includes(TemperatureIdFilter.toString().trim().toLowerCase()) &&
-        el.value
+          .includes(
+            TemperatureInstanceFilter.toString().trim().toLowerCase()
+          ) &&
+        el.timestamp
           .toString()
           .toLowerCase()
-          .includes(TemperatureValueFilter.toString().trim().toLowerCase())
+          .includes(TemperatureTimeStampFilter.toString().trim().toLowerCase())
       );
     });
 
@@ -49,13 +62,13 @@ export class Temperature extends Component {
     this.setState({ temperature: sortedData });
   }
 
-  changeTemperatureIdFilter = (e) => {
-    this.state.TemperatureIdFilter = e.target.value;
+  changeTemperatureInstanceFilter = (e) => {
+    this.state.TemperatureInstanceFilter = e.target.value;
     this.FilterFn();
   };
 
-  changeTemperatureValueFilter = (e) => {
-    this.state.TemperatureValueFilter = e.target.value;
+  changeTemperatureTimeStampFilter = (e) => {
+    this.state.TemperatureTimeStampFilter = e.target.value;
     this.FilterFn();
   };
 
@@ -76,25 +89,113 @@ export class Temperature extends Component {
     this.refreshList();
   }
 
+  exportData() {
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(this.state.temperature)
+    )}`;
+    const link = document.createElement("a");
+    link.href = jsonString;
+    link.download = "data.json";
+
+    link.click();
+  }
+
   render() {
     const { temperature } = this.state;
 
     return (
       <div>
+        <div>
+          <Line
+            data={{
+              labels: temperature.map((temp) => temp.timestamp),
+              datasets: [
+                {
+                  label: "Temperature Values",
+                  data: temperature.map((temp) => temp.value),
+                  backgroundColor: "rgb(156, 211, 100)",
+                  borderColor: "rgb(156, 211, 100)",
+                  borderWidth: 1,
+                },
+              ],
+            }}
+            height={400}
+            options={{
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  title: {
+                    display: true,
+                    text: "Values",
+                  },
+                },
+                x: {
+                  title: {
+                    display: true,
+                    text: "Time Stamp",
+                  },
+                },
+              },
+              plugins: {
+                legend: {
+                  display: true,
+                  labels: {
+                    color: "black",
+                  },
+                },
+              },
+            }}
+          />
+        </div>
+        <div>
+          <Button
+            variant="primary"
+            onClick={() => this.exportData()}
+            style={{ marginLeft: "10px", marginRight: "10px" }}
+          >
+            Export data to JSON
+          </Button>
+          <CSVLink
+            {...{
+              filename: "TemperatureReport.csv",
+              headers: [
+                { label: "Id", key: "id" },
+                { label: "Value", key: "value" },
+                { label: "Instance", key: "instance" },
+                { label: "Time Stamp", key: "timestamp" },
+                { label: "Status", key: "status" },
+              ],
+              data: temperature,
+            }}
+          >
+            <Button
+              variant="primary"
+              style={{
+                marginLeft: "10px",
+                marginRight: "10px",
+              }}
+            >
+              Export data to CSV
+            </Button>
+          </CSVLink>
+        </div>
         <table className="table table-strpied">
           <thead>
             <tr>
+              <th>Id</th>
+              <th>Value</th>
               <th>
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeTemperatureIdFilter}
+                    onChange={this.changeTemperatureInstanceFilter}
                     placeholder="Filter"
                   />
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("id", true)}
+                    onClick={() => this.sortResult("instance", true)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -111,7 +212,7 @@ export class Temperature extends Component {
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("id", false)}
+                    onClick={() => this.sortResult("instance", false)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -125,19 +226,19 @@ export class Temperature extends Component {
                     </svg>
                   </button>
                 </div>
-                Temperature Id
+                Instance
               </th>
               <th>
                 <div className="d-flex flex-row">
                   <input
                     className="form-control m-2"
-                    onChange={this.changeTemperatureValueFilter}
+                    onChange={this.changeTemperatureTimeStampFilter}
                     placeholder="Filter"
                   />
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("value", true)}
+                    onClick={() => this.sortResult("timestamp", true)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -154,7 +255,7 @@ export class Temperature extends Component {
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={() => this.sortResult("value", false)}
+                    onClick={() => this.sortResult("timestamp", false)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -168,8 +269,9 @@ export class Temperature extends Component {
                     </svg>
                   </button>
                 </div>
-                Temperature Value
+                Time Stamp
               </th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -177,6 +279,9 @@ export class Temperature extends Component {
               <tr key={temp.id}>
                 <td>{temp.id}</td>
                 <td>{temp.value}</td>
+                <td>{temp.instance}</td>
+                <td>{temp.timestamp}</td>
+                <td>{temp.status}</td>
               </tr>
             ))}
           </tbody>

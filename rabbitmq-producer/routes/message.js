@@ -22,7 +22,10 @@ const carbonQueue = process.env.CO2_QUEUE;
 const uvQueue = process.env.UV_QUEUE;
 
 var currentQueue = queue;
-var simulation = 1;
+var tempIdx = 0;
+var humidIdx = 0;
+var carbIdx = 0;
+var uvIdx = 0;
 
 let channel = null;
 amqp.connect(url, function (err, conn) {
@@ -44,13 +47,29 @@ router.post("/", function (req, res, next) {
 
   if (req.body.message.startsWith('\\start')) {
     res.render("index", { response: `Started simulation.` });
-    for (let i = 1; i <= 60; i++) {
-      setTimeout(function(){
-        channel.sendToQueue(tempQueue, new Buffer.from(`{"Id":"${pad(i*simulation, 24)}","Value":${getRandomFloat(18, 25, 1)}}`)); //celcius
-        if (i % 2 == 0) {channel.sendToQueue(humidityQueue, new Buffer.from(`{"Id":"${pad(i/2*simulation, 24)}","Value":${getRandomFloat(40, 70, 1)}}`));} //%
-        if (i % 3 == 0) {channel.sendToQueue(carbonQueue, new Buffer.from(`{"Id":"${pad(i/3*simulation, 24)}","Value":${getRandomFloat(0.03, 0.07, 1)}}`));}//%
-        if (i % 4 == 0) {channel.sendToQueue(uvQueue, new Buffer.from(`{"Id":"${pad(i/4*simulation, 24)}","Value":${getRandomFloat(300, 400, 3)}}`));} //nm - dlugosc fali
-      }, 1000);
+    let duration = 60
+    if (/^\\start\([0-9]+\)$/.test(req.body.message)) {
+      duration = Number(req.body.message.match(/\d+/)) * 60; // parse value to minutes
+      console.log(duration);
+    }
+    var matches = req.body.message.match(/\((.*?)\)/);
+    for (let i = 1; i <= duration; i++) {
+      setTimeout(() => {
+      tempIdx ++;
+      channel.sendToQueue(tempQueue, new Buffer.from(`{"Id":"${pad(tempIdx, 24)}","Value":${getRandomFloat(18, 25, 1)},"Instance":${i%8 + 1}}`)); //celcius
+      if (i % 2 == 0) {
+        humidIdx ++;
+        channel.sendToQueue(humidityQueue, new Buffer.from(`{"Id":"${pad(humidIdx, 24)}","Value":${getRandomFloat(40, 70, 1)},"Instance":${i%8 + 1}}`));
+      } //%
+      if (i % 3 == 0) {
+        carbIdx++;
+        channel.sendToQueue(carbonQueue, new Buffer.from(`{"Id":"${pad(carbIdx, 24)}","Value":${getRandomFloat(0.03, 0.07, 1)},"Instance":${i%8 + 1}}`));
+      }//%
+      if (i % 4 == 0) {
+        uvIdx++;
+        channel.sendToQueue(uvQueue, new Buffer.from(`{"Id":"${pad(uvIdx, 24)}","Value":${getRandomFloat(300, 400, 3)},"Instance":${i%8 + 1}}`));
+      } //nm - dlugosc fali
+      }, i * 1000); // sleep i * 1000 ms
     }
   }
   else if (req.body.message.startsWith('\\queue')) {
