@@ -18,6 +18,8 @@ RUN npm install bootstrap
 RUN npm install node-sass
 RUN npm install axios
 RUN npm install --save react-chartjs-2 chart.js
+RUN npm install react-csv
+RUN npm install react-bootstrap bootstrap
 
 # add app
 COPY . ./

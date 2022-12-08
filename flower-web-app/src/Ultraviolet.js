@@ -9,6 +9,8 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { CSVLink } from "react-csv";
+import { Button } from "react-bootstrap";
 
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Legend);
 
@@ -88,6 +90,17 @@ export class Ultraviolet extends Component {
     this.refreshList();
   }
 
+  exportData() {
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(this.state.ultraviolets)
+    )}`;
+    const link = document.createElement("a");
+    link.href = jsonString;
+    link.download = "UltravioletReport.json";
+
+    link.click();
+  }
+
   render() {
     const { ultraviolets } = this.state;
 
@@ -135,6 +148,38 @@ export class Ultraviolet extends Component {
               },
             }}
           />
+        </div>
+        <div>
+          <Button
+            variant="primary"
+            onClick={() => this.exportData()}
+            style={{ marginLeft: "10px", marginRight: "10px" }}
+          >
+            Export data to JSON
+          </Button>
+          <CSVLink
+            {...{
+              filename: "UltravioletReport.csv",
+              headers: [
+                { label: "Id", key: "id" },
+                { label: "Value", key: "value" },
+                { label: "Instance", key: "instance" },
+                { label: "Time Stamp", key: "timestamp" },
+                { label: "Status", key: "status" },
+              ],
+              data: ultraviolets,
+            }}
+          >
+            <Button
+              variant="primary"
+              style={{
+                marginLeft: "10px",
+                marginRight: "10px",
+              }}
+            >
+              Export data to CSV
+            </Button>
+          </CSVLink>
         </div>
         <table className="table table-strpied">
           <thead>
