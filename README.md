@@ -1,4 +1,6 @@
 # SampleDotNetApp
+![flower-web-app](https://user-images.githubusercontent.com/59509836/207425266-2365ca06-a352-41cc-9f2a-6020cc9b3ce3.gif)
+
 Application created in ASP.NET Core 5 technology created for the needs of the subject Websites in .NET
 
 * [Short intro](#short-intro)
@@ -24,7 +26,7 @@ The project works on 5 containers.
 - rabbitmq - message queue
 - flowerbackend - business logic, services, controllers etc
 - rabbitmq-producer - mock for data production
-- flower-web-app - applicatrion frontend
+- flower-web-app - application frontend
 - mongodb - database
 
 # Developement
@@ -49,6 +51,9 @@ npm install react-router-dom --save
 npm install bootstrap
 npm install node-sass
 npm install axios
+npm install --save react-chartjs-2 chart.js
+npm install react-csv
+npm install react-bootstrap bootstrap
 ```
 
 2. Now to build it you just have to use `npm start`. The app will be running on http://localhost:4000
@@ -85,17 +90,17 @@ Containers should be available under those links:
 
 # How to use this app
 ## Main app
-### Filtering
-@a-leandra TODO
+### Filtering and sorting
+Data displayed in the table can be filtered according to either instances or time stamps. Similarly data can be sorted descending or ascending according to the instances or time stamps.
 
 ### Graphs
-@a-leandra TODO
+A graph displayed above the table shows values during different time stamps. Both full data and filtered/sorted data.
 
 ### Saving data
-@a-leandra TODO
+Dedicated buttons above the table allow users to download data (both full and filtered/sorted) in two file formats - JSON or CSV. 
 
 ## Data Generator
-Data generator sends mocked data on the queue which allows product testing. It has the following commands taht need to be typed in the browser after running the project.
+Data generator sends mocked data on the queue which allows product testing. It has the following commands that need to be typed in the browser after running the project.
 
 - `\queue` - shows currently choosen queue which will receive messages you type in.
 - `\queue(<queue_name>)` - changes current queue to <queue_name>.
